@@ -67,10 +67,10 @@ jobs:
       - checkout
       - aws-cli/setup
       - aws-eks/create-cluster:
-          cluster-name: eks-capstone
-          nodegroup-name: eks-capstone-nodes
+          cluster-name: capstone
+          nodegroup-name: nodes
           node-type: t3.medium
-          nodes-min: 2
+          nodes-min: 1
           nodes-max: 3
 
   deploy-application:
@@ -79,7 +79,7 @@ jobs:
     steps:
       - checkout
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: eks-capstone
+          cluster-name: capstone
           install-kubectl: true
       - run:
           name: Test kubectl
