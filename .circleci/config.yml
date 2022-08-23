@@ -96,3 +96,12 @@ jobs:
       - run:
           name: get deployment status
           command: kubectl get svc capstone
+
+workflows:
+  deployment:
+    jobs:
+      - build-and-push:
+      - deploy-eks:
+          requires: [build-and-push]
+      - deploy-application:
+          requires: [deploy-eks]
