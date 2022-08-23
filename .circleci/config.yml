@@ -100,7 +100,7 @@ jobs:
 workflows:
   deployment:
     jobs:
-      - build-and-push:
+      - build-and-push
       - deploy-eks:
           requires: [build-and-push]
       - deploy-application:
