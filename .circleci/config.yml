@@ -48,6 +48,8 @@ jobs:
   build-and-push:
     machine:
       image: ubuntu-2204:2022.04.2
+    steps:
+      - checkout
       - run:
           name: Build and push Docker image
           command: |
