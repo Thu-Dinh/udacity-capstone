@@ -66,12 +66,16 @@ jobs:
     steps:
       - checkout
       - aws-cli/setup
-      - aws-eks/create-cluster:
+      - aws-eks/delete-cluster:
+          cluster-name: eks-capstone
+      - aws-eks/delete-cluster:
           cluster-name: capstone
-          nodegroup-name: nodes
-          node-type: t3.medium
-          nodes-min: 1
-          nodes-max: 3
+#      - aws-eks/create-cluster:
+#          cluster-name: capstone
+#          nodegroup-name: nodes
+#          node-type: t3.medium
+#          nodes-min: 1
+#          nodes-max: 3
 
   deploy-application:
     docker:
@@ -106,5 +110,5 @@ workflows:
           requires: [run-lint-and-test]
       - deploy-eks:
           requires: [build-and-push]
-      - deploy-application:
-          requires: [deploy-eks]
+#      - deploy-application:
+#          requires: [deploy-eks]
