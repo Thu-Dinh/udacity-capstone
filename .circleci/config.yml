@@ -60,22 +60,42 @@ jobs:
             echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
             docker push $DOCKER_LOGIN/capstone:v1.0.0
 
-  deploy-eks:
+  create-eks-cluster:
     docker:
-      - image: "cimg/python:3.10"
+      - image: aws-eks/python3
     steps:
       - checkout
       - aws-cli/setup
-      - aws-eks/delete-cluster:
-          cluster-name: eks-capstone
-      - aws-eks/delete-cluster:
+      - aws-eks/create-cluster:
           cluster-name: capstone
-#      - aws-eks/create-cluster:
-#          cluster-name: capstone
-#          nodegroup-name: nodes
-#          node-type: t3.medium
-#          nodes-min: 1
-#          nodes-max: 3
+          node-type: t2.small
+          nodes-min: 1
+          nodes-max: 3
+
+  create-deployment:
+    executor: aws-eks/python3
+    steps:
+      - checkout
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: capstone
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          get-rollout-status: true
+          resource-file-path: ".circleci/files/deployment.yml"
+          resource-name: deployment/capstone
+          show-kubectl-command: true
+
+  create-service:
+    executor: aws-eks/python3
+    steps:
+      - checkout
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: capstone
+          install-kubectl: true
+      - kubernetes/create-or-update-resource:
+          resource-file-path: ".circleci/files/service.yml"
+          resource-name: service/capstone
+          show-kubectl-command: true
 
   deploy-application:
     docker:
@@ -108,7 +128,9 @@ workflows:
       - run-lint-and-test
       - build-and-push:
           requires: [run-lint-and-test]
-      - deploy-eks:
+      - create-eks-cluster:
           requires: [build-and-push]
-#      - deploy-application:
-#          requires: [deploy-eks]
+      - create-service:
+          requires: [create-eks-cluster]
+      - create-deployment:
+          requires: [create-service]

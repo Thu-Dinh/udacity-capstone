@@ -16,4 +16,5 @@ spec:
         - name: capstone
           image: docker20190329/capstone:v1.0.0
           ports:
-            - containerPort: 5000
+            - name: http
+              containerPort: 5000
