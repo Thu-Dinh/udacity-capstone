@@ -60,16 +60,6 @@ jobs:
             echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
             docker push $DOCKER_LOGIN/capstone:v1.0.0
 
-
-  delete-eks-cluster:
-    docker:
-      - image: "cimg/python:3.10"
-    steps:
-      - checkout
-      - aws-cli/setup
-      - aws-eks/delete-cluster:
-          cluster-name: capstone
-
   create-eks-cluster:
     docker:
       - image: "cimg/python:3.10"
@@ -115,7 +105,6 @@ workflows:
       - run-lint-and-test
       - build-and-push:
           requires: [run-lint-and-test]
-      - delete-eks-cluster
 #      - create-eks-cluster:
 #          requires: [build-and-push]
 #      - create-service:
