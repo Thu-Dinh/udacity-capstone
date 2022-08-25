@@ -72,6 +72,15 @@ jobs:
           nodes-min: 1
           nodes-max: 3
 
+  delete-eks-cluster:
+    docker:
+      - image: "cimg/python:3.10"
+    steps:
+      - checkout
+      - aws-cli/setup
+      - aws-eks/delete-cluster:
+          cluster-name: capstone
+
   create-deployment:
     docker:
       - image: "cimg/python:3.10"
@@ -137,13 +146,14 @@ workflows:
       - run-lint-and-test
       - build-and-push:
           requires: [run-lint-and-test]
-      - create-eks-cluster:
-          requires: [build-and-push]
-      - create-service:
-          requires: [create-eks-cluster]
-      - create-deployment:
-          requires: [create-service]
-      - update-container-image:
-          requires: [create-deployment]
-      - smoke-test:
-          requires: [update-container-image]
+      - delete-eks-cluster
+#      - create-eks-cluster:
+#          requires: [build-and-push]
+#      - create-service:
+#          requires: [create-eks-cluster]
+#      - create-deployment:
+#          requires: [create-service]
+#      - update-container-image:
+#          requires: [create-deployment]
+#      - smoke-test:
+#          requires: [update-container-image]
