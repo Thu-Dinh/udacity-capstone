@@ -108,7 +108,6 @@ jobs:
           cluster-name: capstone
           install-kubectl: true
       - kubernetes/update-container-image:
-          cluster-name: capstone
           container-image-updates: 'capstone=docker20190329/capstone:v2.0.0'
           resource-name: deployment/capstone
 
