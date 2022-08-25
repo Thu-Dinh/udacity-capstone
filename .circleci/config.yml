@@ -56,9 +56,9 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             make install
-            docker build -t $DOCKER_LOGIN/capstone:v1.0.0 .
+            docker build -t $DOCKER_LOGIN/capstone:v2.0.0 .
             echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin
-            docker push $DOCKER_LOGIN/capstone:v1.0.0
+            docker push $DOCKER_LOGIN/capstone:v2.0.0
 
   create-eks-cluster:
     docker:
@@ -99,15 +99,53 @@ jobs:
           resource-name: service/capstone
           show-kubectl-command: true
 
+  update-container-image:
+    docker:
+      - image: "cimg/python:3.10"
+    steps:
+      - checkout
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: capstone
+          install-kubectl: true
+      - aws-eks/update-container-image:
+          cluster-name: capstone
+          container-image-updates: 'capstone=docker20190329/capstone:v2.0.0'
+          record: true
+          resource-name: deployment/capstone
+
+  smoke-test:
+    docker:
+      - image: "cimg/python:3.10"
+      steps:
+        - aws-eks/update-kubeconfig-with-authenticator:
+            cluster-name: capstone
+            install-kubectl: true
+        - run:
+            name: Test Load Balencer endpoint
+            command: |
+              sleep 30
+              EXTERNAL_IP=$(kubectl get service capstone | awk '{print $4}' | tail -n1)
+              echo "${EXTERNAL_IP}"
+              if curl --insecure --silent --retry 10 http://${EXTERNAL_IP}:5000 | grep "Hello World v2.0.0!"
+              then
+                exit 0
+              else
+                exit 1
+              fi
+
 workflows:
   deployment:
     jobs:
       - run-lint-and-test
       - build-and-push:
           requires: [run-lint-and-test]
-#      - create-eks-cluster:
-#          requires: [build-and-push]
-#      - create-service:
-#          requires: [create-eks-cluster]
-#      - create-deployment:
-#          requires: [create-service]
+      - create-eks-cluster:
+          requires: [build-and-push]
+      - create-service:
+          requires: [create-eks-cluster]
+      - create-deployment:
+          requires: [create-service]
+      - update-container-image:
+          requires: [create-deployment]
+      - smoke-test:
+          requires: [update-container-image]
