@@ -110,7 +110,6 @@ jobs:
       - kubernetes/update-container-image:
           cluster-name: capstone
           container-image-updates: 'capstone=docker20190329/capstone:v2.0.0'
-          record: true
           resource-name: deployment/capstone
 
   smoke-test:
