@@ -116,22 +116,22 @@ jobs:
   smoke-test:
     docker:
       - image: "cimg/python:3.10"
-      steps:
-        - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: capstone
-            install-kubectl: true
-        - run:
-            name: Test Load Balencer endpoint
-            command: |
-              sleep 30
-              EXTERNAL_IP=$(kubectl get service capstone | awk '{print $4}' | tail -n1)
-              echo "${EXTERNAL_IP}"
-              if curl --insecure --silent --retry 10 http://${EXTERNAL_IP}:5000 | grep "Hello World v2.0.0!"
-              then
-                exit 0
-              else
-                exit 1
-              fi
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: capstone
+          install-kubectl: true
+      - run:
+          name: Test Load Balencer endpoint
+          command: |
+            sleep 30
+            EXTERNAL_IP=$(kubectl get service capstone | awk '{print $4}' | tail -n1)
+            echo "${EXTERNAL_IP}"
+            if curl --insecure --silent --retry 10 http://${EXTERNAL_IP}:5000 | grep "Hello World v2.0.0!"
+            then
+              exit 0
+            else
+              exit 1
+            fi
 
 workflows:
   deployment:
