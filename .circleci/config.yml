@@ -145,7 +145,11 @@ workflows:
           requires: [create-eks-cluster]
       - create-deployment:
           requires: [create-service]
-      - update-container-image:
+      - aws-eks/update-container-image:
+          cluster-name: capstone
+          container-image-updates: 'capstone=docker20190329/capstone:v2.0.0'
+          record: true
           requires: [create-deployment]
+          resource-name: deployment/capstone
       - smoke-test:
-          requires: [update-container-image]
+          requires: [aws-eks/update-container-image]
