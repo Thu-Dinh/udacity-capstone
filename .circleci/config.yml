@@ -107,7 +107,7 @@ jobs:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: capstone
           install-kubectl: true
-      - aws-eks/update-container-image:
+      - kubernetes/update-container-image:
           cluster-name: capstone
           container-image-updates: 'capstone=docker20190329/capstone:v2.0.0'
           record: true
@@ -145,11 +145,7 @@ workflows:
           requires: [create-eks-cluster]
       - create-deployment:
           requires: [create-service]
-      - aws-eks/update-container-image:
-          cluster-name: capstone
-          container-image-updates: 'capstone=docker20190329/capstone:v2.0.0'
-          record: true
+      - update-container-image:
           requires: [create-deployment]
-          resource-name: deployment/capstone
       - smoke-test:
-          requires: [aws-eks/update-container-image]
+          requires: [update-container-image]
