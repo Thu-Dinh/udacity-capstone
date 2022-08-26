@@ -1,0 +1,2 @@
+- REPO_URL: https://github.com/Thu-Dinh/udacity-capstone/tree/master
+- LB_URL: http://a71ba0ee09d9746b8810cff76062a8b7-402361675.us-west-2.elb.amazonaws.com:5000
