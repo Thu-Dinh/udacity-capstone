@@ -77,7 +77,7 @@ jobs:
     steps:
       - checkout
       - aws-cli/setup
-      - aws-eks/create-cluster:
+      - aws-eks/delete-cluster:
           cluster-name: capstone
 
   create-deployment:
